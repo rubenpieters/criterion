@@ -30,6 +30,7 @@ module Criterion
     , whnf
     , nfIO
     , whnfIO
+    , nfIOf
     -- * For interactive use
     , benchmark
     , benchmarkWith

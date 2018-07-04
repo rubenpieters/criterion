@@ -61,6 +61,7 @@ module Criterion.Types
     , whnf
     , nfIO
     , whnfIO
+    , nfIOf
     -- * Result types
     , Outliers(..)
     , OutlierEffect(..)
@@ -363,6 +364,18 @@ whnfIO' a = go
              x <- a
              x `seq` go (n-1)
 {-# NOINLINE whnfIO' #-}
+
+nfIOf :: NFData a => (x -> IO a) -> x -> Benchmarkable
+nfIOf f v = toBenchmarkable (nfIOf' rnf f v)
+
+nfIOf' :: (a -> b) -> (x -> IO a) -> x -> (Int64 -> IO ())
+nfIOf' reduce f v = go
+  where go n
+          | n <= 0    = return ()
+          | otherwise = do
+              x <- f v
+              reduce x `seq` go (n-1)
+{-# NOINLINE nfIOf' #-}
 
 -- | Specification of a collection of benchmarks and environments. A
 -- benchmark may consist of:
